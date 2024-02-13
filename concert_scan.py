@@ -32,9 +32,7 @@ class MainWindow(QMainWindow):
         self.setMenuWidget(container)
 
     def clickbutton(self):
-
         text = self.input.text()
-        print(text)
 
 
 app = QApplication(sys.argv)
