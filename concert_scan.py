@@ -1,6 +1,7 @@
 import sys
 import re
 import database
+import web_scraper
 from PyQt5.QtCore import pyqtSlot, QUrl
 from PyQt5.QtGui import QDesktopServices, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QToolTip, QLineEdit, QMessageBox, QLabel, QVBoxLayout, QFormLayout, QTextEdit, QScrollArea, QSpacerItem, QSizePolicy, QHBoxLayout, QCheckBox
@@ -50,7 +51,9 @@ class MainWindow(QWidget):
 
             self.info_label = QLabel("This app was created by Kylie Griffiths for CS 407\nWinter Term (2024) - University of Oregon")
             self.info_label.setStyleSheet("color: black")
+ 
             layout.addWidget(self.info_label)
+
             self.setLayout(layout)
 
             self.initUI()
@@ -67,10 +70,6 @@ class MainWindow(QWidget):
     def date_window(self):
         self.date_w = DateWindow()
         self.date_w.show()
-
-    def venue_window(self):
-        self.venue_w = VenueWindow()
-        self.venue_w.show()
 
 class ArtistWindow(QWidget):
     def __init__(self):
@@ -92,7 +91,7 @@ class ArtistWindow(QWidget):
             self.artist_submit = QPushButton("Submit")
             self.artist_submit.setStyleSheet("QPushButton { background-color: #6f97d9; } QPushButton:hover { background-color: #a2c0e8; }")
             self.artist_submit.setFixedWidth(135)
-            top_layout.addRow("Enter the name of an artist or band:", self.artist_write)
+            top_layout.addRow("Enter the name of a band or performer:", self.artist_write)
 
             spacer_item = QSpacerItem(100, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -139,7 +138,7 @@ class ArtistWindow(QWidget):
         result = database.find_artist(text)
 
         if result == False:
-            display_string = "No Eugene events were found for this artist in the upcoming months."
+            display_string = "No Eugene events were found for this performer in the upcoming months."
             self.result_display.append(display_string)
 
         else:
