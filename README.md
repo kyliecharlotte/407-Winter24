@@ -1,2 +1,2 @@
 # concert_scan.py
-Enter an artist and get updated on any concerts going on!
+Enter an artist and get informed on any concerts going on in the Eugene area.
