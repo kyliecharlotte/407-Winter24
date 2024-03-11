@@ -9,7 +9,7 @@ class MainWindow(QWidget):
 
     def __init__(self):
             super().__init__()
-            self.title = "Entertaining Eugene"
+            self.title = "Entertain Eugene"
             self.left = 20
             self.top = 75
             self.width = 200
@@ -18,9 +18,15 @@ class MainWindow(QWidget):
             self.setStyleSheet("background-color: #8eb3e6; color: black") 
             self.setWindowTitle("Color") 
 
-            self.main_label = QLabel("Entertaining Eugene is a personal app designed to pull \nconcert information from all across the Eugene area.")
+            self.logo = QLabel()
+            pixmap = QPixmap('test logo.png')
+            self.logo.setPixmap(pixmap)
+
+
+            self.main_label = QLabel("Entertain Eugene is a personal app designed to pull \nconcert information from all across the Eugene area.")
             self.main_label.setStyleSheet("color: black")
             layout = QVBoxLayout()
+            layout.addWidget(self.logo)
             layout.addWidget(self.main_label)
             self.artist_button = QPushButton("Search by Artist", self)
             self.artist_button.setFixedWidth(150)
@@ -41,6 +47,10 @@ class MainWindow(QWidget):
             self.artist_button.clicked.connect(self.artist_window)
             self.date_button.clicked.connect(self.date_window)
             self.venue_button.clicked.connect(self.venue_window)
+
+            self.info_label = QLabel("This app was created by Kylie Griffiths for CS 407\nWinter Term (2024) - University of Oregon")
+            self.info_label.setStyleSheet("color: black")
+            layout.addWidget(self.info_label)
             self.setLayout(layout)
 
             self.initUI()
@@ -69,7 +79,7 @@ class ArtistWindow(QWidget):
             self.left = 200
             self.top = 100
             self.width = 400
-            self.height = 140
+            self.height = 200
             self.setStyleSheet("background-color: #8eb3e6; color: black") 
             self.setWindowTitle("Color") 
 
@@ -113,18 +123,36 @@ class ArtistWindow(QWidget):
     def submit_artist_name(self):
         text = self.artist_write.text()
         self.artist_write.clear()
+        self.result_display.clear()
+
+        for i in reversed(range(self.link_layout.count())):
+            widget = self.link_layout.itemAt(i).widget()
+            if widget is not None:
+                self.link_layout.removeWidget(widget)
+                widget.deleteLater()
+
+        if text.strip() == "":
+            self.error_msg = Artist_Failure_Window()
+            self.error_msg.show()
+            return
 
         result = database.find_artist(text)
 
         if result == False:
-            print(False)
+            display_string = "No Eugene events were found for this artist in the upcoming months."
+            self.result_display.append(display_string)
+
         else:
             index = 1
             for event in result:
                 display_string = str(index)+": "+event.get("Artist")+" on "+event.get("Date")+" at "+event.get("Venue")
                 self.result_display.append(display_string)
+                artist_name = (event.get("Artist"))
+                if '&' in artist_name:
+                    artist_name = artist_name.replace("&", "and")
+                button_text = str(index)+": "+artist_name.strip()
                 link_text = event.get("Link")
-                link_button = QPushButton(str(index)+": "+link_text)  # Create link button
+                link_button = QPushButton(button_text)  # Create link button
                 link_button.setStyleSheet("QPushButton { color: blue; text-decoration: underline; }")
                 link_button.clicked.connect(lambda _, link=link_text: QDesktopServices.openUrl(QUrl(link)))
                 self.link_layout.addWidget(link_button)
@@ -132,6 +160,27 @@ class ArtistWindow(QWidget):
 
     def initUI(self):
         #resize window
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+class Artist_Failure_Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = "Error Message"
+        self.left = 300
+        self.top = 150
+        self.width = 175
+        self.height = 60
+        self.setStyleSheet("background-color: #8eb3e6; color: black") 
+        self.setWindowTitle("Color") 
+        layout = QVBoxLayout()
+        self.error_message = QLabel("No artist was selected.")
+        layout.addWidget(self.error_message)
+        self.setLayout(layout)
+        self.initUI()
+
+    def initUI(self):
+        #resize windowx
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         
@@ -205,6 +254,16 @@ class DateWindow(QWidget):
     def submit_dates(self):
         start_text = self.start_date.text()
         end_text = self.end_date.text()
+        self.start_date.clear()
+        self.end_date.clear()
+        self.result_display.clear()
+
+        for i in reversed(range(self.link_layout.count())):
+            widget = self.link_layout.itemAt(i).widget()
+            if widget is not None:
+                self.link_layout.removeWidget(widget)
+                widget.deleteLater()
+
         if database.check_date_format(start_text) == False or database.check_date_format(end_text) == False:
             self.fail_window = Date_Failure_Window()
             self.fail_window.show()
@@ -260,20 +319,134 @@ class VenueWindow(QWidget):
             self.title = "Venue Selection"
             self.left = 200
             self.top = 100
-            self.width = 250
-            self.height = 140
+            self.width = 300
+            self.height = 200
             self.setStyleSheet("background-color: #8eb3e6; color: black") 
             self.setWindowTitle("Color") 
             outer_layout = QVBoxLayout()
-            top_layout = QFormLayout
-            top_layout.addRow("Select your thea")
+            top_layout = QFormLayout()
+            optionsLayout = QVBoxLayout()
+            text_widget = QLabel("Select your venue(s) to view")
+            top_layout.addWidget(text_widget)
+            self.knight = QCheckBox("Matthew Knight Arena")
+            optionsLayout.addWidget(self.knight)
+            self.hult = QCheckBox("Hult Center")
+            optionsLayout.addWidget(self.hult)
+            self.mcdonald = QCheckBox("McDonald Theatre")
+            optionsLayout.addWidget(self.mcdonald)
+            self.cuthbert = QCheckBox("Cuthbert Amphitheater")
+            optionsLayout.addWidget(self.cuthbert)
+            outer_layout.addLayout(top_layout)
+            outer_layout.addLayout(optionsLayout)
+
+            self.venue_submit = QPushButton("Submit")
+            self.venue_submit.setStyleSheet("QPushButton { background-color: #6f97d9; } QPushButton:hover { background-color: #a2c0e8; }")
+            self.venue_submit.setFixedSize(80,20)
+
+            outer_layout.addWidget(self.venue_submit)
+
+            self.venue_submit.clicked.connect(self.submit_venues)
+            self.venue_submit.clicked.connect(self.unclick)
+
+            self.result_label = QLabel("Upcoming Event(s):", self)
+            outer_layout.addWidget(self.result_label)
+            self.result_display = QTextEdit()  # QTextEdit for displaying results
+            self.result_display.setPlaceholderText("Events will appear once dates are submitted.")
+            self.result_display.setReadOnly(True)  # Make the QTextEdit read-only
+            self.result_display.setFixedSize(500, 100)
+            outer_layout.addWidget(self.result_display)
+
+            self.link_scroll_area = QScrollArea()  # Scrollable area for link buttons
+            self.link_scroll_area.setFixedSize(500, 300)
+            self.link_scroll_area.setWidgetResizable(True)
+            
+            self.link_label = QLabel("Link(s):", self)
+            outer_layout.addWidget(self.link_label)
+            outer_layout.addWidget(self.link_scroll_area)
+
+            self.link_widget = QWidget()  # Widget to contain link buttons
+            self.link_layout = QVBoxLayout(self.link_widget)  # Layout for link buttons
+            self.link_widget.setStyleSheet("QWidget { background-color: #6f97d9; }")
+            self.link_scroll_area.setWidget(self.link_widget)
+
+            self.setLayout(outer_layout)
+
             self.initUI()
 
     def initUI(self):
         #resize window
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+    
+    def submit_venues(self):
+        self.result_display.clear()
 
+        for i in reversed(range(self.link_layout.count())):
+            widget = self.link_layout.itemAt(i).widget()
+            if widget is not None:
+                self.link_layout.removeWidget(widget)
+                widget.deleteLater()
+    
+        locations = []
+        if self.knight.isChecked():
+            locations.append("Matthew Knight Arena")
+        if self.hult.isChecked():
+            locations.append("Hult Center")
+        if self.mcdonald.isChecked():
+            locations.append("McDonald Theatre")
+        if self.cuthbert.isChecked():
+            locations.append("Cuthbert Amphitheater")
+    
+        
+        if len(locations) == 0:
+            self.venue_error = Venue_Failure_Window()
+            self.venue_error.show()
+
+        else:
+            result = database.search_by_venue(locations)
+            index = 1
+            for events in result:
+                for event in events:
+                    display_string = str(index)+": "+event.get("Artist")+" on "+event.get("Date")+" at "+event.get("Venue")
+                    self.result_display.append(display_string)
+                    link_text = event.get("Link")
+                    artist_name = (event.get("Artist"))
+                    if '&' in artist_name:
+                        artist_name = artist_name.replace("&", "and")
+                    button_text = str(index)+": "+artist_name
+                    link_button = QPushButton(button_text)  # Create link button
+                    link_button.setStyleSheet("QPushButton { color: #0e4282; text-decoration: underline; }")
+                    link_button.clicked.connect(lambda _, link=link_text: QDesktopServices.openUrl(QUrl(link)))
+                    self.link_layout.addWidget(link_button)
+                    index = index + 1
+
+    def unclick(self):
+        self.knight.setChecked(False)
+        self.hult.setChecked(False)
+        self.mcdonald.setChecked(False)
+        self.cuthbert.setChecked(False)
+        
+class Venue_Failure_Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = "Error Message"
+        self.left = 300
+        self.top = 150
+        self.width = 200
+        self.height = 75
+        self.setStyleSheet("background-color: #8eb3e6; color: black") 
+        self.setWindowTitle("Color") 
+        layout = QVBoxLayout()
+        self.error_message = QLabel("No venue was selected.")
+        layout.addWidget(self.error_message)
+        self.setLayout(layout)
+        self.initUI()
+
+    def initUI(self):
+        #resize window
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+         
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

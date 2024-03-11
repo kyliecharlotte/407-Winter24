@@ -38,17 +38,17 @@ def standardize_date(date: str):
     current_year = datetime.datetime.now().year
     try:
         # Attempt to parse input_date as MM/DD/YYYY format
-        standardized_date = datetime.datetime.strptime(date, '%m/%d/%Y').strftime('%m/%d/%Y')
+        standardized_date = datetime.datetime.strptime(date, '%m/%d/%Y')
     except ValueError:
         try:
             # Attempt to parse input_date as a different format
-            standardized_date = datetime.datetime.strptime(date, '%B %d %Y').strftime('%m/%d/%Y')
+            standardized_date = datetime.datetime.strptime(date, '%B %d %Y')
         except ValueError:
             try:
-                standardized_date = datetime.datetime.strptime(date, '%a %b %d').strftime('%m/%d/%Y')
+                standardized_date = datetime.datetime.strptime(date, '%a %b %d')
             except ValueError:
                 try:
-                    standardized_date = datetime.datetime.strptime(date + ' ' + str(current_year), '%b %d %Y').strftime('%m/%d/%Y')
+                    standardized_date = datetime.datetime.strptime(date + ' ' + str(current_year), '%b %d %Y')
                 except ValueError:
             # If both formats fail, return None
                     standardized_date = None
@@ -72,14 +72,26 @@ def find_dates(start_date: str, end_date:str):
         date_fix = " ".join(date_fix.split(", "))
         new_date = standardize_date(date_fix)
         if standardized_start < new_date and standardized_end > new_date:
-            print(new_date)
             rows.extend(df[df["Date"] == dates].to_dict(orient="records"))
             added_to_rows = True
     if added_to_rows == False:
         return False
     else:
         return rows
-        
     
+def search_by_venue(venue_list: list):
+
+    df = pd.read_csv("concert_file.csv")
+    df = pd.DataFrame(df)
+    list = []
+    
+    for venue in venue_list:
+        venue_rows = df[df['Venue'] == venue].to_dict(orient="records")
+        list.append(venue_rows)
+
+    print(list)
+
+    return list
+   
 if __name__ == "__main__":
-   print(find_dates("06/27/2024", "09/24/2024"))
+    find_dates("05/11/2024", "05/11/2025")
