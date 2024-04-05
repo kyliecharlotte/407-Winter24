@@ -18,13 +18,12 @@ def find_artist(artist_name: str):
     row_list = []
 
     for artist in list_of_artists:
-        if artist_name in artist:
+        if artist_name.lower() in artist.lower():
             rows.extend(df[df["Artist"] == artist].to_dict(orient="records"))
             added_to_rows = True
     
     if added_to_rows is False:
         return False
-    #row_list = rows.to_dict(orient="records")
     return rows
 
 def check_date_format(date_string):

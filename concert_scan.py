@@ -1,10 +1,9 @@
 import sys
 import re
 import database
-import web_scraper
-from PyQt5.QtCore import pyqtSlot, QUrl
+from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QDesktopServices, QPixmap
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QToolTip, QLineEdit, QMessageBox, QLabel, QVBoxLayout, QFormLayout, QTextEdit, QScrollArea, QSpacerItem, QSizePolicy, QHBoxLayout, QCheckBox
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QMessageBox, QLabel, QVBoxLayout, QFormLayout, QTextEdit, QScrollArea, QSpacerItem, QSizePolicy, QHBoxLayout, QCheckBox
 
 class MainWindow(QWidget):
 
@@ -14,7 +13,7 @@ class MainWindow(QWidget):
             self.left = 20
             self.top = 75
             self.width = 200
-            self.height = 140
+            self.height = 130
 
             self.setStyleSheet("background-color: #8eb3e6; color: black") 
             self.setWindowTitle("Color") 
@@ -51,8 +50,10 @@ class MainWindow(QWidget):
 
             self.info_label = QLabel("This app was created by Kylie Griffiths for CS 407\nWinter Term (2024) - University of Oregon")
             self.info_label.setStyleSheet("color: black")
- 
+
             layout.addWidget(self.info_label)
+
+            layout.addWidget(self.venue_button)
 
             self.setLayout(layout)
 
@@ -69,6 +70,10 @@ class MainWindow(QWidget):
 
     def date_window(self):
         self.date_w = DateWindow()
+        self.date_w.show()
+
+    def venue_window(self):
+        self.date_w = VenueWindow()
         self.date_w.show()
 
 class ArtistWindow(QWidget):
